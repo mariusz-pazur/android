@@ -1,0 +1,43 @@
+package pl.clawdivine.homeationclient;
+
+import pl.clawdivine.homeationclient.devices.DevicesAdapter;
+import pl.clawdivine.homeationclient.devices.RemoteDeviceInfo;
+import pl.clawdivine.homeationclient.devices.RemotePowerStripInfo;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ListView;
+
+/**
+ * A placeholder fragment containing a simple view.
+ */
+public class RemoteDevicesFragment extends Fragment {    
+    
+	private ListView remoteDevicesList;
+	private DevicesAdapter remoteDevicesAdapter;
+	private Button buttonRefreshDeviceList;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_remote_devices, container, false);
+        this.remoteDevicesList = (ListView)rootView.findViewById(R.id.listView_remotedevices);
+        this.buttonRefreshDeviceList = (Button)rootView.findViewById(R.id.button_refreshdevices);
+        
+        remoteDevicesAdapter = new DevicesAdapter(rootView.getContext(), R.layout.lv_item_remote_device, R.id.label_remotedeviceinfo);
+        remoteDevicesList.setAdapter(remoteDevicesAdapter);
+        
+        
+        
+        RemoteDeviceInfo rmInfo = new RemotePowerStripInfo();
+        rmInfo.setId(0);
+        rmInfo.setName("Device 1");
+        rmInfo.setType(1);
+        
+        remoteDevicesAdapter.add(rmInfo);        
+        return rootView;
+    }
+}

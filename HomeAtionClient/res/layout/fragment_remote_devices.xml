@@ -8,9 +8,28 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="pl.clawdivine.homeationclient.MainActivity$PlaceholderFragment" >
 
-    <TextView
-        android:id="@+id/section_label"
+    <Button
+        android:id="@+id/button_refreshdevices"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" 
+        android:layout_centerHorizontal="true"       
+        android:text="@string/button_refreshdevices" />
+    
+    <TextView
+        android:id="@+id/label_remotedevices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_remotedevices"
+        android:layout_below="@+id/button_refreshdevices" />
+
+    <ListView
+        android:id="@+id/listView_remotedevices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/label_remotedevices">
+    </ListView>
+
+    
 
 </RelativeLayout>

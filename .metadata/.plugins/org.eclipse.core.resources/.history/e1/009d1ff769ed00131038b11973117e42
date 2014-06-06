@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HomeAtionClient</string>
+    <string name="remote_devices_section">Devices</string>
+    <string name="settings_section">Settings</string>
+    <string name="LabelIPAddress">IP Address</string>
+    <string name="action_settings">Settings</string>
+    <string name="button_autodetect">Auto Detect IP</string>
+    <string name="button_savesettings">Save IP</string>
+</resources>

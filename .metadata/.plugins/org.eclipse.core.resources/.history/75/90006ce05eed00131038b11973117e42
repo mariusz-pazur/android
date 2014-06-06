@@ -1,0 +1,80 @@
+package pl.clawdivine.homeationclient;
+
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+/**
+ * A placeholder fragment containing a simple view.
+ */
+public class SettingsFragment extends Fragment {
+    /**
+     * The fragment argument representing the section number for this
+     * fragment.
+     */
+    private static final String ARG_SECTION_NUMBER = "section_number";
+    private static final String PREFS_NAME = "SettingsFile";
+    private static final String Settings_IP = "Settings_IP";
+    private Button autoDetectButton;
+    private Button saveSettingsButton;
+
+    /**
+     * Returns a new instance of this fragment for the given section
+     * number.
+     */
+    public static SettingsFragment newInstance(int sectionNumber) {
+    	SettingsFragment fragment = new SettingsFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public SettingsFragment() {
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
+    {
+        View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
+        EditText editTextIp = (EditText) rootView.findViewById(R.id.editText_ipaddress);
+               
+        // Restore preferences
+        SharedPreferences settings = this.getActivity().getSharedPreferences(PREFS_NAME, 0);
+        String ip = settings.getString(Settings_IP, "192.168.0.6");
+        editTextIp.setText(ip);
+        
+        this.autoDetectButton = (Button)rootView.findViewById(R.id.button_autodetect);
+        this.saveSettingsButton = (Button)rootView.findViewById(R.id.button_savesettings);
+        
+        autoDetectButton.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                //tutaj wykonujemy skanowanie lokalnej sieci
+            }
+        });
+        
+        saveSettingsButton.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+            	SharedPreferences settings = v.getContext().getSharedPreferences(PREFS_NAME, 0);
+                SharedPreferences.Editor editor = settings.edit();
+                EditText editTextIp = (EditText) v.findViewById(R.id.editText_ipaddress);
+                editor.putString(Settings_IP, editTextIp.getText().toString());
+
+                // Commit the edits!
+                editor.commit();
+            }
+        });
+        
+        return rootView;
+    }      
+}

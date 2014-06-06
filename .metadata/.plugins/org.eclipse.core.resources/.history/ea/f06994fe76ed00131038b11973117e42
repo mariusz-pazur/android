@@ -1,0 +1,7 @@
+package pl.clawdivine.homeationclient.common;
+
+public class Consts 
+{
+	public static final String PREFS_NAME = "SettingsFile";
+	public static final String Settings_Devices = "Settings_Devices";
+}
