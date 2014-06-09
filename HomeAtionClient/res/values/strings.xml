@@ -9,4 +9,10 @@
     <string name="button_savesettings">Save IP</string>
     <string name="label_remotedevices">Your devices:</string>
     <string name="button_refreshdevices">Refresh</string>
+    <string name="wifi_dialog_title">Enable WiFi</string>
+    <string name="wifi_dialog_message">Do You want to turn on Wifi to use the application?</string>
+    <string name="wifi_not_enabled_error">You must enable Wifi to use the application!</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="button_turn_wifi_on">Turn on WiFi</string>
 </resources>

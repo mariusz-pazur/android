@@ -2,12 +2,14 @@ package pl.clawdivine.homeationclient;
 
 import java.util.Locale;
 
+import pl.clawdivine.homeationclient.connectivity.ConnectionManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
@@ -29,6 +31,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
+    
+    private ConnectionManager connectionManager;   
+    private Intent connectionErrorIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +72,26 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                     actionBar.newTab()
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
+        }
+        this.connectionManager = new ConnectionManager(this.getBaseContext()); 
+        this.connectionErrorIntent = new Intent(this, ConnectionErrorActivity.class);
+    }
+    
+    @Override
+    public void onResume()
+    {
+    	super.onResume();
+    	ShowNoConnectionDialog();
+    }
+    
+    public void ShowNoConnectionDialog()
+    {
+    	if (!connectionManager.isWiFiEnabled())
+        {
+        	NoConnectionDialogFragment noConnectionDialog = new NoConnectionDialogFragment();
+        	noConnectionDialog.setConnectionErrorIntent(connectionErrorIntent);
+        	noConnectionDialog.setConnectionManager(connectionManager);
+        	noConnectionDialog.show(getSupportFragmentManager(), "NoWiFiConnection");    		
         }
     }
 

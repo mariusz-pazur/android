@@ -30,10 +30,12 @@ public class RemoteDevicesFragment extends Fragment {
 	private DevicesAdapter remoteDevicesAdapter;
 	private Button buttonRefreshDeviceList;
 	private List<RemoteDeviceInfo> devices = new ArrayList<RemoteDeviceInfo>();
+	private MainActivity mainActivity;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
+    {
+    	mainActivity = (MainActivity)this.getActivity();
         View rootView = inflater.inflate(R.layout.fragment_remote_devices, container, false);
         this.remoteDevicesList = (ListView)rootView.findViewById(R.id.listView_remotedevices);
         this.buttonRefreshDeviceList = (Button)rootView.findViewById(R.id.button_refreshdevices);
@@ -45,6 +47,8 @@ public class RemoteDevicesFragment extends Fragment {
         {
             public void onClick(View v)
             {
+            	if (mainActivity != null)
+            		mainActivity.ShowNoConnectionDialog();
             	RemotePowerStripInfo rmInfo = new RemotePowerStripInfo();
                 rmInfo.setId(0);
                 rmInfo.setName("Device 1");
