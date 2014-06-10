@@ -1,0 +1,6 @@
+package pl.clawdivine.homeationclient.devices;
+
+public class RemotePowerStripInfo extends RemoteDeviceInfo 
+{
+	
+}

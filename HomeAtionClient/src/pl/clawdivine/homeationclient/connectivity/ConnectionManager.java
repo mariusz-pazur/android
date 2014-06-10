@@ -3,22 +3,51 @@ package pl.clawdivine.homeationclient.connectivity;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.TextHttpResponseHandler;
+
 import pl.clawdivine.homeationclient.common.Consts;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
+
+import org.apache.http.Header;
 
 public class ConnectionManager 
 {
 	private WifiManager wifi;
+	private String homeAtionIpAddress = "";
+	private int calls = 0;
+	private int responses = 0;
+	private SharedPreferences preferences;
 
     public ConnectionManager(Context context)
     {
     	wifi= (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+    	preferences = context.getSharedPreferences(Consts.PREFS_NAME, 0);
+    	homeAtionIpAddress = preferences.getString(Consts.Settings_IP, "");
     }
     
-    public String getHomeAtionMainIP()
+    public String getHomeAtionIpAddress()
     {
+    	return homeAtionIpAddress;
+    }
+    
+    public void saveHomeAtionIpAddress(String ipAddress)
+    {    	
+    	this.homeAtionIpAddress = ipAddress;
+        SharedPreferences.Editor editor = preferences.edit();                
+        editor.putString(Consts.Settings_IP, ipAddress);
+        // Commit the edits!
+        editor.commit();
+    }
+    
+    public String detectHomeAtionMainIP()
+    {
+    	homeAtionIpAddress = "";
+    	calls = 0;
+    	responses = 0;
     	int maxAddress = 254;            	
         //tutaj wykonujemy skanowanie lokalnej sieci            	
     	DhcpInfo d=wifi.getDhcpInfo();
@@ -27,10 +56,8 @@ public class ConnectionManager
         int subnetMask = d.netmask;
         String subnetMaskString = Consts.intToIp(subnetMask);
         String[] netmaskElements = subnetMaskString.split("[.]");
-        String[] ipAddressElements = ipAddressString.split("[.]");
-        String result = ipAddressString + "(" + subnetMaskString + ")";
-        ArrayList<ArrayList<Integer>> ipAddressRanges = new ArrayList<ArrayList<Integer>>();  
-        ArrayList<String> possibleAddresses = new ArrayList<String>();
+        String[] ipAddressElements = ipAddressString.split("[.]");        
+        ArrayList<ArrayList<Integer>> ipAddressRanges = new ArrayList<ArrayList<Integer>>();          
         
         for(int i = 0; i < netmaskElements.length; i++)
         {
@@ -50,14 +77,15 @@ public class ConnectionManager
         	{
         		ipAddressRanges.get(i).add(Integer.parseInt(ipAddressElements[i]));
         	}
-        }
-        for(int i = 0; i < ipAddressRanges.get(0).size(); i++)
+        }  
+        boolean hasAddressFound = false;
+        for(int i = 0; i < ipAddressRanges.get(0).size() && !hasAddressFound; i++)
         {
-        	for(int j = 0; j < ipAddressRanges.get(1).size(); j++)
+        	for(int j = 0; j < ipAddressRanges.get(1).size() && !hasAddressFound; j++)
             {
-        		for(int k = 0; k < ipAddressRanges.get(2).size(); k++)
+        		for(int k = 0; k < ipAddressRanges.get(2).size() && !hasAddressFound; k++)
                 {
-        			for(int l = 0; l < ipAddressRanges.get(3).size(); l++)
+        			for(int l = 0; l < ipAddressRanges.get(3).size() && !hasAddressFound; l++)
                     {
                     	String address = String.format(Locale.getDefault(), "%d.%d.%d.%d", 
                     			ipAddressRanges.get(0).get(i), 
@@ -65,13 +93,41 @@ public class ConnectionManager
                     			ipAddressRanges.get(2).get(k), 
                     			ipAddressRanges.get(3).get(l));
                     	if (!address.equalsIgnoreCase(ipAddressString))
-                    		possibleAddresses.add(address);
+                    	{
+                    		calls++;
+                    		HomeAtionHttpClient.echo(address, new TextHttpResponseHandler() 
+                    		{
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, String responseString)
+                                {
+                                	responses++;
+                                	if (responseString.equalsIgnoreCase(Consts.HOME_ATION_ECHO_RESPONSE))
+                                	{
+                                		homeAtionIpAddress = this.getRequestURI().getHost();
+                                	}
+                                } 
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable exception)
+                                {
+                                	responses++;
+                                }
+                            });
+                    	}
+                    	if (homeAtionIpAddress != "")
+                    		hasAddressFound = true;
                     }
                 }
             }
         }
+        long startWaiting = System.currentTimeMillis();
+        while(calls != responses && homeAtionIpAddress == "" && (System.currentTimeMillis() - startWaiting) < 5000 ) {}
         
-        return result;
+        return homeAtionIpAddress;
+    }
+    
+    public void getDevices(AsyncHttpResponseHandler handler)
+    {
+    	HomeAtionHttpClient.getDevices(homeAtionIpAddress,handler);
     }
     
     public boolean isWiFiEnabled()

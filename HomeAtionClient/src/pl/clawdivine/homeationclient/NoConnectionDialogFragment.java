@@ -4,9 +4,11 @@ import pl.clawdivine.homeationclient.connectivity.ConnectionManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.view.KeyEvent;
 
 public class NoConnectionDialogFragment extends DialogFragment {
 	
@@ -43,6 +45,15 @@ public class NoConnectionDialogFragment extends DialogFragment {
             	startActivity(connectionErrorIntent);
             }
         });
+    	builder.setOnKeyListener(new OnKeyListener()
+    	{           
+			@Override
+			public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent arg2) {
+				if (keyCode == KeyEvent.KEYCODE_BACK)
+					return true;
+				return false;
+			}
+    });
     	// 3. Get the AlertDialog from create()
     	return builder.create();
 	}

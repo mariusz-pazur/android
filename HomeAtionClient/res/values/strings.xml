@@ -15,4 +15,6 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="button_turn_wifi_on">Turn on WiFi</string>
+    <string name="label_no_home_ation">HomeAtionMain not found</string>
+    <string name="message_fill_settings">Please enter HomeAtionMain address in Settings tab</string>
 </resources>
