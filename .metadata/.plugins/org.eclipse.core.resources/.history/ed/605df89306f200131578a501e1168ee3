@@ -1,0 +1,62 @@
+package pl.clawdivine.homeationclient.fragments;
+
+import pl.clawdivine.homeationclient.R;
+import pl.clawdivine.homeationclient.connectivity.ConnectionManager;
+import android.annotation.SuppressLint;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+
+public class DeviceSettingsFragment extends Fragment {
+    
+    private Button autoDetectButton;
+    private Button saveSettingsButton;    
+    private EditText editTextIp;
+    private ConnectionManager connectionManager;
+    
+
+    public void setConnectionManager(ConnectionManager connectionManager)
+	{
+		this.connectionManager = connectionManager;
+	}
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
+    {
+        View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
+        editTextIp = (EditText) rootView.findViewById(R.id.editText_ipaddress);                      
+        
+        editTextIp.setText(connectionManager.getHomeAtionIpAddress());
+        
+        this.autoDetectButton = (Button)rootView.findViewById(R.id.button_autodetect);
+        this.saveSettingsButton = (Button)rootView.findViewById(R.id.button_savesettings);               
+        
+        autoDetectButton.setOnClickListener(new View.OnClickListener()
+        {
+            @SuppressLint("DefaultLocale")
+			public void onClick(View v)
+            {
+            	String resultIP = connectionManager.detectHomeAtionMainIP();
+            	if (resultIP != "")
+            		editTextIp.setText(resultIP);
+            	else
+            		editTextIp.setText(R.string.label_no_home_ation);
+                               
+            }
+        });
+        
+        saveSettingsButton.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+            	connectionManager.saveHomeAtionIpAddress(editTextIp.getText().toString());
+            }
+        });
+        
+        return rootView;
+    }      
+}

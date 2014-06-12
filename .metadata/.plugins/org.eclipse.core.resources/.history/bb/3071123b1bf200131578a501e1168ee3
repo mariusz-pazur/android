@@ -1,0 +1,113 @@
+package pl.clawdivine.homeationclient.fragments;
+
+import org.jraf.android.backport.switchwidget.Switch;
+
+import pl.clawdivine.homeationclient.R;
+import pl.clawdivine.homeationclient.connectivity.ConnectionManager;
+import pl.clawdivine.homeationclient.devices.RemoteDeviceInfo;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.TextView;
+
+public class RemotePowerStripControlFragment extends Fragment 
+{      	
+    private ConnectionManager connectionManager;
+    private Button buttonEnableAll;
+    private Button buttonDisableAll;
+    private TextView textViewDeviceName;
+    private Switch[] switches = new Switch[4];    
+    private RemoteDeviceInfo deviceInfo;   
+    
+    public void setDeviceInfo(RemoteDeviceInfo deviceInfo)
+    {
+    	this.deviceInfo = deviceInfo;
+    }
+    
+    public void setConnectionManager(ConnectionManager connectionManager)
+	{
+		this.connectionManager = connectionManager;
+	}
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
+    {
+        View rootView = inflater.inflate(R.layout.fragment_remote_strip_control, container, false);
+        this.buttonEnableAll = (Button)rootView.findViewById(R.id.button_enable_all);
+        this.buttonDisableAll = (Button)rootView.findViewById(R.id.button_disable_all);
+        this.textViewDeviceName = (TextView)rootView.findViewById(R.id.textView_power_strip_name);
+        this.switches[0] = (Switch)rootView.findViewById(R.id.switch_1);
+        this.switches[1] = (Switch)rootView.findViewById(R.id.switch_2);
+        this.switches[2] = (Switch)rootView.findViewById(R.id.switch_3);
+        this.switches[3] = (Switch)rootView.findViewById(R.id.switch_4);
+        
+        this.textViewDeviceName.setText(deviceInfo.getName());
+             
+        for (int i = 0; i < switches.length; i++)
+        {
+        	final int index = i;
+        	this.switches[i].setChecked(deviceInfo.getState()[i] == 0);
+        	this.switches[i].setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+				@Override
+				public void onCheckedChanged(CompoundButton arg0, boolean state) {
+					// TODO Auto-generated method stub
+					deviceInfo.getState()[index] = (byte) (state ? 0 : 1);
+				}
+        		
+        	});
+        }
+        
+        buttonEnableAll.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+            	deviceInfo.setState(new byte[] {0, 0, 0, 0});
+            	UpdateSwitchState();
+            	//komenda do HttpClient i zapis do applicationSettings
+            }
+        });
+        
+        buttonDisableAll.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+            	deviceInfo.setState(new byte[] {1, 1, 1, 1});
+            	UpdateSwitchState();
+            	//komenda do HttpClient i zapis do applicationSettings
+            }
+        });
+        
+        return rootView;
+    }
+    
+    private void UpdateSwitchState()
+    {
+    	for (int i = 0; i < switches.length; i++)
+        {        	
+        	this.switches[i].setChecked(deviceInfo.getState()[i] == 0);        
+        }
+    }
+    
+    @Override
+    public void onResume()
+    {
+    	this.textViewDeviceName.setText(deviceInfo.getName());
+    	super.onResume();    	
+    }
+    
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (hidden) {
+            //do when hidden
+        } else {
+           //do when show
+        }
+    }
+}

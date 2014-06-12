@@ -120,7 +120,7 @@ public class ConnectionManager
             }
         }
         long startWaiting = System.currentTimeMillis();
-        while(calls != responses && homeAtionIpAddress == "" && (System.currentTimeMillis() - startWaiting) < 5000 ) {}
+        while(calls != responses && homeAtionIpAddress == "" && (System.currentTimeMillis() - startWaiting) < 30000 ) {}
         
         return homeAtionIpAddress;
     }
@@ -128,6 +128,26 @@ public class ConnectionManager
     public void getDevices(AsyncHttpResponseHandler handler)
     {
     	HomeAtionHttpClient.getDevices(homeAtionIpAddress,handler);
+    }
+    
+    public void sendCommandEnable(byte id, byte type, byte switchNr, AsyncHttpResponseHandler responseHandler)
+    {
+  	  	HomeAtionHttpClient.sendCommandEnable(homeAtionIpAddress, id, type, switchNr, responseHandler);  	  	
+    }
+    
+    public void sendCommandDisable(byte id, byte type, byte switchNr, AsyncHttpResponseHandler responseHandler)
+    {
+    	HomeAtionHttpClient.sendCommandDisable(homeAtionIpAddress, id, type, switchNr, responseHandler);  
+    }
+    
+    public void sendCommandEnableAll(byte id, byte type,  AsyncHttpResponseHandler responseHandler)
+    {
+    	HomeAtionHttpClient.sendCommandEnableAll(homeAtionIpAddress, id, type, responseHandler);  
+    }
+    
+    public void sendCommandDisableAll(byte id, byte type, AsyncHttpResponseHandler responseHandler)
+    {
+    	HomeAtionHttpClient.sendCommandDisableAll(homeAtionIpAddress, id, type, responseHandler);  
     }
     
     public boolean isWiFiEnabled()

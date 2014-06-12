@@ -1,0 +1,46 @@
+package pl.clawdivine.homeationclient.fragments;
+
+import pl.clawdivine.homeationclient.R;
+import pl.clawdivine.homeationclient.devices.RemoteDeviceInfo;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+
+public class DeviceSettingsFragment extends Fragment {
+    
+    private Button saveDeviceButton;    
+    private EditText editTextDeviceName;    
+    private RemoteDeviceInfo deviceInfo;   
+    
+    public void setDeviceInfo(RemoteDeviceInfo deviceInfo)
+    {
+    	this.deviceInfo = deviceInfo;
+    }
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
+    {
+        View rootView = inflater.inflate(R.layout.fragment_device_settings, container, false);
+        editTextDeviceName = (EditText) rootView.findViewById(R.id.editText_device_name);                      
+        
+        editTextDeviceName.setText(deviceInfo.getName());
+        
+        this.saveDeviceButton = (Button)rootView.findViewById(R.id.button_save_device);               
+        
+        
+        saveDeviceButton.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+            	deviceInfo.setName(editTextDeviceName.getText().toString());
+            	//i zapis do applicationSettings
+            }
+        });
+        
+        return rootView;
+    }      
+}

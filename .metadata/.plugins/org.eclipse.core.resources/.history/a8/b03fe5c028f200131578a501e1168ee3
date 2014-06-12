@@ -1,0 +1,15 @@
+package pl.clawdivine.homeationclient.devices;
+
+import com.loopj.android.http.TextHttpResponseHandler;
+
+public class RemotePowerStripReponseHandler extends TextHttpResponseHandler 
+{
+	private OnDeviceChangeListener deviceChangeListener;
+	
+	public RemotePowerStripReponseHandler(OnDeviceChangeListener deviceChangeListener)
+	{
+		super();
+		this.deviceChangeListener = deviceChangeListener;
+	} 
+
+}

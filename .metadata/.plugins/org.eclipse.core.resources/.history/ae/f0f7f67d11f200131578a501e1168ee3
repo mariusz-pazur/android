@@ -1,0 +1,40 @@
+package pl.clawdivine.homeationclient.fragments;
+
+import org.jraf.android.backport.switchwidget.Switch;
+
+import pl.clawdivine.homeationclient.R;
+import pl.clawdivine.homeationclient.connectivity.ConnectionManager;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class RemotePowerStripControlFragment extends Fragment {
+    
+    
+    private ConnectionManager connectionManager;
+    private Button buttonEnableAll;
+    private Button buttonDisableAll;
+    private TextView textViewDeviceName;
+    private Switch switch1;
+    private Switch switch2;
+    private Switch switch3;
+    private Switch switch4;
+
+    public void setConnectionManager(ConnectionManager connectionManager)
+	{
+		this.connectionManager = connectionManager;
+	}
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
+    {
+        View rootView = inflater.inflate(R.layout.fragment_remote_strip_control, container, false);
+        
+        
+        return rootView;
+    }      
+}

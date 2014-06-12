@@ -1,0 +1,5 @@
+package pl.clawdivine.homeationclient.fragments;
+
+public class DeviceSettingsFragment {
+
+}

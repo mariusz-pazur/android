@@ -2,9 +2,10 @@
 <resources>
     <string name="app_name">HomeAtionClient</string>
     <string name="remote_devices_section">Devices</string>
-    <string name="settings_section">Settings</string>
-    <string name="LabelIPAddress">IP Address:</string>
-    <string name="action_settings">Settings</string>
+    <string name="settings_section">Main settings</string>
+    <string name="device_control_section">Control</string>
+    <string name="device_settings_section">Device settings</string>
+    <string name="LabelIPAddress">IP Address:</string>    
     <string name="button_autodetect">Auto Detect IP</string>
     <string name="button_savesettings">Save IP</string>
     <string name="label_remotedevices">Your devices:</string>
@@ -16,5 +17,14 @@
     <string name="cancel">Cancel</string>
     <string name="button_turn_wifi_on">Turn on WiFi</string>
     <string name="label_no_home_ation">HomeAtionMain not found</string>
-    <string name="message_fill_settings">Please enter HomeAtionMain address in Settings tab</string>
+    <string name="message_fill_settings">Please enter HomeAtionMain address in  Main settings tab</string>
+    <string name="label_device_name">Device name:</string>
+    <string name="button_save_device">Save</string>
+    <string name="button_power_strip_enable_all">Enable all</string>
+    <string name="button_power_strip_disable_all">Disable all</string>
+    <string name="switch_1">Switch 1</string>
+    <string name="switch_2">Switch 2</string>
+    <string name="switch_3">Switch 3</string>
+    <string name="switch_4">Switch 4</string>
+    <string name="settings_saved">Settings saved!</string>
 </resources>

@@ -1,5 +1,7 @@
 package pl.clawdivine.homeationclient.devices;
 
+import java.util.Collection;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,9 +39,15 @@ public class DevicesAdapter extends ArrayAdapter<RemoteDeviceInfo>
             TextView itemView = (TextView) view.findViewById(textViewResourceId);
             if (itemView != null)
             {
-                itemView.setText(String.format("%s (%s)", item.getName(), item.getId()));                
+                itemView.setText(item.getTypeName() + " - " + item.getNameWithId());                
             }
         }
         return view;
+    }       
+    
+    public void addAllFromArray(Collection<RemoteDeviceInfo> devices)
+    {
+    	for(RemoteDeviceInfo device : devices)
+    		this.add(device);
     }
 }

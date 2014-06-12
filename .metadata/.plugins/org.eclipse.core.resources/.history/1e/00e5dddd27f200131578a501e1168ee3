@@ -1,0 +1,6 @@
+package pl.clawdivine.homeationclient.devices;
+
+public interface OnDeviceChangeListener 
+{
+    public void onDeviceChange(RemoteDeviceInfo devInfo);
+}

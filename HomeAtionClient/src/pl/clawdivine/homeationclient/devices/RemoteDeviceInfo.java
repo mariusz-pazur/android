@@ -13,19 +13,24 @@ import com.google.gson.JsonElement;
 public class RemoteDeviceInfo implements Parcelable
 {
 	private String name;
-	private int id;
-	private int type;
+	private byte id;
+	private byte type;
 	private byte state[] = new byte[4];
 	
 	public RemoteDeviceInfo(Parcel source) {
 		this.name = source.readString();
-    	this.id = source.readInt();
-		this.type = source.readInt();
+    	this.id = source.readByte();
+		this.type = source.readByte();
 		this.state = new byte[4];
 		source.readByteArray(this.state);		
 	}
 
 	public RemoteDeviceInfo() {		
+	}
+	
+	public String getNameWithId()
+	{
+		return getName() + " (Id: " + getId() + ")";
 	}
 
 	public String getName() {		
@@ -36,19 +41,19 @@ public class RemoteDeviceInfo implements Parcelable
 		this.name = name;
 	}
 
-	public int getId() {
+	public byte getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(byte id) {
 		this.id = id;
 	}
 
-	public int getType() {
+	public byte getType() {
 		return type;
 	}
 
-	public void setType(int type) {
+	public void setType(byte type) {
 		this.type = type;
 	}	
 
@@ -58,6 +63,14 @@ public class RemoteDeviceInfo implements Parcelable
 
 	public void setState(byte state[]) {
 		this.state = state;
+	}
+	
+	public String getTypeName()
+	{
+		if (type == (byte)1)
+			return "Power strip";
+		else
+			return "";
 	}
 	
 	public static List<RemoteDeviceInfo> getListFromJsonArray(JsonArray arr, Gson gson)
@@ -81,8 +94,8 @@ public class RemoteDeviceInfo implements Parcelable
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(this.name);		
-		dest.writeInt(this.id);
-		dest.writeInt(this.type);		
+		dest.writeByte(this.id);
+		dest.writeByte(this.type);		
 		dest.writeByteArray(this.state);		
 	}
 	
