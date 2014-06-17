@@ -15,7 +15,7 @@ public class NoConnectionDialogFragment extends DialogFragment {
 	
 	private ConnectionManager connectionManager;
 	private Intent connectionErrorIntent;	
-			
+	
 	public NoConnectionDialogFragment()
 	{				
 	}
@@ -29,14 +29,6 @@ public class NoConnectionDialogFragment extends DialogFragment {
 	{
 		this.connectionErrorIntent = connectionErrorIntent;
 	}
-	
-	@Override
-    public void onCreate(Bundle savedInstanceState) 
-    {
-        super.onCreate(savedInstanceState);
-        // retain this fragment
-        setRetainInstance(true);
-    }
 	
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

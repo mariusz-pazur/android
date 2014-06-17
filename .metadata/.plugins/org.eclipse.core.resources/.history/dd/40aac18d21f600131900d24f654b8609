@@ -136,7 +136,9 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
         	
         });
         
-                      
+        receiver = new DeviceChangeBroadcastReceiver(this);
+        IntentFilter filter = new IntentFilter(Consts.BROADCAST_DEVICE_CHANGE_INFO);
+        getActivity().registerReceiver(receiver, filter);                
                       
         Gson gson = new Gson();
         JsonParser parser=new JsonParser();
@@ -155,22 +157,14 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
                 
         return rootView;
     }
+        
     
     @Override
-    public void onResume()
+    public void onDestroy()
     {
-    	super.onResume();
-    	receiver = new DeviceChangeBroadcastReceiver(this);
-        IntentFilter filter = new IntentFilter(Consts.BROADCAST_DEVICE_CHANGE_INFO);
-        getActivity().registerReceiver(receiver, filter);  
+        super.onDestroy();        
+        getActivity().unregisterReceiver(receiver);        
     }
-    
-    @Override
-    public void onPause()
-    {
-    	super.onPause();
-    	getActivity().unregisterReceiver(receiver);   
-    }              
 
 	@Override
 	public void onDeviceChange(RemoteDeviceInfo devInfo) 

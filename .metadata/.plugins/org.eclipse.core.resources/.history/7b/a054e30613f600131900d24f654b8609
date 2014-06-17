@@ -96,7 +96,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         	switch (position) 
         	{
             	case 0:
-            		RemoteDevicesFragment rdFrag = new RemoteDevicesFragment();            		
+            		RemoteDevicesFragment rdFrag = new RemoteDevicesFragment();
             		rdFrag.setConnectionManager(connectionManager);
             		frag = rdFrag;
             		break;

@@ -9,7 +9,7 @@ public class HomeAtionHttpClient
   private static final String HTTP_URL = "http://";
   private static final String ECHO_METHOD = "/echo";
   private static final String DEVICES_METHOD = "/devices";
-  private static final String COMMAND_METHOD = "/command?id=%d&type=%d&cmd=%d&param=%d";
+  private static final String COMMAND_METHOD = "/command?id=%d&type=%d;cmd=%d;param=%d";
 
   private static AsyncHttpClient client = new AsyncHttpClient();
 

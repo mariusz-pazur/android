@@ -38,7 +38,8 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
 	private ListView remoteDevicesList;
 	private DevicesAdapter remoteDevicesAdapter;
 	private Button buttonRefreshDeviceList;
-	private List<RemoteDeviceInfo> devices = new ArrayList<RemoteDeviceInfo>();	
+	private List<RemoteDeviceInfo> devices = new ArrayList<RemoteDeviceInfo>();
+	private MainActivity mainActivity;
 	private ConnectionManager connectionManager;
 	private SharedPreferences preferences;
 	private DeviceChangeBroadcastReceiver receiver;
@@ -49,17 +50,10 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
 		this.connectionManager = connectionManager;
 	}
 	
-	@Override
-    public void onCreate(Bundle savedInstanceState) 
-    {
-        super.onCreate(savedInstanceState);
-        // retain this fragment
-        setRetainInstance(true);
-    }
-	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
-    {    	
+    {
+    	mainActivity = (MainActivity)this.getActivity();
         View rootView = inflater.inflate(R.layout.fragment_remote_devices, container, false);
         this.remoteDevicesList = (ListView)rootView.findViewById(R.id.listView_remotedevices);
         this.buttonRefreshDeviceList = (Button)rootView.findViewById(R.id.button_refreshdevices);
@@ -79,8 +73,8 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
             	progress.setVisibility(View.VISIBLE);            	
             	remoteDevicesAdapter.clear();
             	remoteDevicesAdapter.notifyDataSetChanged();
-            	if (getActivity() != null)
-            		((MainActivity)getActivity()).ShowNoConnectionDialog();
+            	if (mainActivity != null)
+            		mainActivity.ShowNoConnectionDialog();
             	
 	            connectionManager.getDevices(
 	            	new TextHttpResponseHandler() {
@@ -136,7 +130,9 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
         	
         });
         
-                      
+        receiver = new DeviceChangeBroadcastReceiver(this);
+        IntentFilter filter = new IntentFilter(Consts.BROADCAST_DEVICE_CHANGE_INFO);
+        getActivity().registerReceiver(receiver, filter);                
                       
         Gson gson = new Gson();
         JsonParser parser=new JsonParser();
@@ -155,22 +151,14 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
                 
         return rootView;
     }
+        
     
     @Override
-    public void onResume()
+    public void onDestroy()
     {
-    	super.onResume();
-    	receiver = new DeviceChangeBroadcastReceiver(this);
-        IntentFilter filter = new IntentFilter(Consts.BROADCAST_DEVICE_CHANGE_INFO);
-        getActivity().registerReceiver(receiver, filter);  
+        super.onDestroy();        
+        getActivity().unregisterReceiver(receiver);        
     }
-    
-    @Override
-    public void onPause()
-    {
-    	super.onPause();
-    	getActivity().unregisterReceiver(receiver);   
-    }              
 
 	@Override
 	public void onDeviceChange(RemoteDeviceInfo devInfo) 

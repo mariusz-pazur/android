@@ -66,7 +66,10 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
         this.switches[2] = (Switch)rootView.findViewById(R.id.switch_3);
         this.switches[3] = (Switch)rootView.findViewById(R.id.switch_4);
         
-        this.responseHandler = new RemotePowerStripReponseHandler(this);        
+        this.responseHandler = new RemotePowerStripReponseHandler(this);
+        receiver = new DeviceChangeBroadcastReceiver(this);
+        IntentFilter filter = new IntentFilter(Consts.BROADCAST_DEVICE_CHANGE_INFO);
+        getActivity().registerReceiver(receiver, filter); 
         
         this.deviceChangeIntent = new Intent(Consts.BROADCAST_DEVICE_CHANGE_INFO);                 
              
@@ -112,22 +115,12 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
     }
     
     @Override
-    public void onResume()
+    public void onDestroy()
     {
-    	super.onResume();
-    	this.textViewDeviceName.setText(deviceInfo.getNameWithId());
-    	receiver = new DeviceChangeBroadcastReceiver(this);
-        IntentFilter filter = new IntentFilter(Consts.BROADCAST_DEVICE_CHANGE_INFO);
-        getActivity().registerReceiver(receiver, filter); 
+        super.onDestroy();        
+        getActivity().unregisterReceiver(receiver);        
     }
     
-    @Override
-    public void onPause()
-    {
-    	super.onPause();
-    	getActivity().unregisterReceiver(receiver);   
-    }  
-        
     private void UpdateSwitchState()
     {
     	for (int i = 0; i < switches.length; i++)
@@ -140,7 +133,14 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
     {    	
     	deviceChangeIntent.putExtra(Consts.REMOTE_DEVICE_PARCELABLE, deviceInfo);
     	getActivity().sendBroadcast(deviceChangeIntent); 
-    }      
+    }
+    
+    @Override
+    public void onResume()
+    {
+    	this.textViewDeviceName.setText(deviceInfo.getNameWithId());
+    	super.onResume();    	
+    }
 
 	@Override
 	public void onDeviceChange(RemoteDeviceInfo devInfo) 
