@@ -1,6 +1,7 @@
 package pl.clawdivine.homeationclient.fragments;
 
 import pl.clawdivine.homeationclient.connectivity.ConnectionManager;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -15,15 +16,11 @@ public class NoConnectionDialogFragment extends DialogFragment {
 	
 	private ConnectionManager connectionManager;
 	private Intent connectionErrorIntent;	
+	private IBaseActivity myActivity;	
 			
 	public NoConnectionDialogFragment()
 	{				
-	}
-	
-	public void setConnectionManager(ConnectionManager connectionManager)
-	{
-		this.connectionManager = connectionManager;
-	}
+	}	
 	
 	public void setConnectionErrorIntent(Intent connectionErrorIntent)
 	{
@@ -39,10 +36,17 @@ public class NoConnectionDialogFragment extends DialogFragment {
     }
 	
 	@Override
+	public void onAttach(Activity a) {
+	    super.onAttach(a);
+	    myActivity = (IBaseActivity)a;
+	}
+	
+	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 		//poka¿ message box: czy chcesz uruchomiæ WiFi  	
     	AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-    	
+    	connectionManager = myActivity.getConnectionManager();
+    	connectionErrorIntent = new Intent(getActivity(), ConnectionErrorActivity.class);
     	builder.setMessage(R.string.wifi_dialog_message).setTitle(R.string.wifi_dialog_title);
     	builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {

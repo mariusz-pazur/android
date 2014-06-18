@@ -7,16 +7,16 @@ import org.apache.http.Header;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 import pl.clawdivine.homeationclient.*;
 import pl.clawdivine.homeationclient.common.Consts;
+import pl.clawdivine.homeationclient.common.PreferencesHelper;
 import pl.clawdivine.homeationclient.connectivity.ConnectionManager;
 import pl.clawdivine.homeationclient.devices.*;
+import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,21 +33,16 @@ import android.widget.Toast;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeListener{    
+public class RemoteDevicesFragment extends Fragment {    
 	
 	private ListView remoteDevicesList;
 	private DevicesAdapter remoteDevicesAdapter;
 	private Button buttonRefreshDeviceList;
 	private List<RemoteDeviceInfo> devices = new ArrayList<RemoteDeviceInfo>();	
 	private ConnectionManager connectionManager;
-	private SharedPreferences preferences;
-	private DeviceChangeBroadcastReceiver receiver;
-	private ProgressBar progress;
-
-	public void setConnectionManager(ConnectionManager connectionManager)
-	{
-		this.connectionManager = connectionManager;
-	}
+	private SharedPreferences preferences;	
+	private ProgressBar progress;	
+	private IBaseActivity myActivity;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) 
@@ -56,6 +51,24 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
         // retain this fragment
         setRetainInstance(true);
     }
+	
+	@Override
+	public void onAttach(Activity a) {
+	    super.onAttach(a);
+	    myActivity = (IBaseActivity)a;
+	}
+	
+	@Override
+	public void onResume()
+	{
+		super.onResume();
+		List<RemoteDeviceInfo> remoteDevices = PreferencesHelper.ReadRemoteDevices(preferences);
+		devices.clear();
+		remoteDevicesAdapter.clear();    	
+        devices.addAll(remoteDevices);
+        remoteDevicesAdapter.addAllFromArray(remoteDevices); 
+        remoteDevicesAdapter.notifyDataSetChanged();
+	}
 	
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
@@ -70,7 +83,7 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
         remoteDevicesList.setAdapter(remoteDevicesAdapter);
         
         preferences = getActivity().getSharedPreferences(Consts.PREFS_NAME, 0);
-        
+        connectionManager = myActivity.getConnectionManager();
         
         buttonRefreshDeviceList.setOnClickListener(new View.OnClickListener()
         {
@@ -79,43 +92,44 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
             	progress.setVisibility(View.VISIBLE);            	
             	remoteDevicesAdapter.clear();
             	remoteDevicesAdapter.notifyDataSetChanged();
-            	if (getActivity() != null)
-            		((MainActivity)getActivity()).ShowNoConnectionDialog();
-            	
-	            connectionManager.getDevices(
-	            	new TextHttpResponseHandler() {
-	                    @Override
-	                    public void onSuccess(int statusCode, Header[] headers, String responseString) {
-	                    	SharedPreferences.Editor ed = preferences.edit();
-	                    	Gson gson = new Gson();
-	                        JsonParser parser=new JsonParser();
-	                        JsonArray arr=parser.parse(responseString).getAsJsonArray();
-	                        List<RemoteDeviceInfo> remoteDevices = RemoteDeviceInfo.getListFromJsonArray(arr, gson);	                        
-	                        ed.putString(Consts.Settings_Devices, responseString);
-	                        ed.commit();
-	                        for(RemoteDeviceInfo rd : remoteDevices)
-	                        {
-	                        	for(RemoteDeviceInfo ld : devices)
-		                        {
-		                        	if (rd != null && ld != null && rd.getId() == ld.getId())
-		                        		rd.setName(ld.getName());
-		                        }
-	                        }
-	                        devices.clear();
-	                        devices.addAll(remoteDevices);
-	                        remoteDevicesAdapter.addAllFromArray(remoteDevices);
-	                        remoteDevicesList.setAdapter(remoteDevicesAdapter);
-	            			remoteDevicesAdapter.notifyDataSetChanged();
-	                        progress.setVisibility(View.INVISIBLE);
-	                    }
-	                    @Override
-	                    public void onFailure(String responseBody, Throwable e) 
-	                    {	                    	
-	                		Toast.makeText(getActivity().getApplicationContext(), R.string.message_fill_settings, Toast.LENGTH_LONG).show();
-	                		progress.setVisibility(View.INVISIBLE);
-	                    }
-	                }
-	            );            	
+            	if (!myActivity.hasToShowNoConnectionDialog())
+            	{
+            		connectionManager.getDevices(
+            				new TextHttpResponseHandler() {
+            					@Override
+            					public void onSuccess(int statusCode, Header[] headers, String responseString) {
+            						Gson gson = new Gson();
+            						JsonParser parser=new JsonParser();
+            						JsonArray arr=parser.parse(responseString).getAsJsonArray();
+            						List<RemoteDeviceInfo> remoteDevices = RemoteDeviceInfo.getListFromJsonArray(arr, gson);	                        	                       
+            						for(RemoteDeviceInfo rd : remoteDevices)
+            						{
+            							for(RemoteDeviceInfo ld : devices)
+            							{
+            								if (rd != null && ld != null && rd.getId() == ld.getId())
+            								{
+            									rd.setName(ld.getName());
+            									rd.setStateNames(ld.getStateNames());
+            								}
+            							}
+            						}
+            						PreferencesHelper.WriteRemoteDevices(preferences, remoteDevices);
+            						devices.clear();
+            						devices.addAll(remoteDevices);
+            						remoteDevicesAdapter.addAllFromArray(remoteDevices);
+            						remoteDevicesList.setAdapter(remoteDevicesAdapter);
+            						remoteDevicesAdapter.notifyDataSetChanged();
+            						progress.setVisibility(View.INVISIBLE);
+            					}
+            					@Override
+            					public void onFailure(String responseBody, Throwable e) 
+            					{	                    	
+            						Toast.makeText(getActivity().getApplicationContext(), R.string.message_fill_settings, Toast.LENGTH_LONG).show();
+            						progress.setVisibility(View.INVISIBLE);
+            					}
+            				}
+            		);
+            	}
             }
         });
         
@@ -135,89 +149,7 @@ public class RemoteDevicesFragment extends Fragment implements OnDeviceChangeLis
 			}
         	
         });
-        
-                      
-                      
-        Gson gson = new Gson();
-        JsonParser parser=new JsonParser();
-        String devs = preferences.getString(Consts.Settings_Devices, null);
-        if (devs != null && !devs.equalsIgnoreCase(""))
-        {
-	        JsonArray arr=parser.parse(devs).getAsJsonArray();
-	                
-	        for (JsonElement jsonElement : arr)
-	        {
-	        	RemoteDeviceInfo dev = gson.fromJson(jsonElement, RemoteDeviceInfo.class);
-	            devices.add(dev);
-	            remoteDevicesAdapter.add(dev);
-	        }
-        }
-                
+                                                            
         return rootView;
-    }
-    
-    @Override
-    public void onResume()
-    {
-    	super.onResume();
-    	receiver = new DeviceChangeBroadcastReceiver(this);
-        IntentFilter filter = new IntentFilter(Consts.BROADCAST_DEVICE_CHANGE_INFO);
-        getActivity().registerReceiver(receiver, filter);  
-    }
-    
-    @Override
-    public void onPause()
-    {
-    	super.onPause();
-    	getActivity().unregisterReceiver(receiver);   
-    }              
-
-	@Override
-	public void onDeviceChange(RemoteDeviceInfo devInfo) 
-	{
-		boolean hasChanged = false;
-		if (devInfo != null)
-		{
-			for(int i =0; i < devices.size(); i++)
-			{
-				RemoteDeviceInfo dev = devices.get(i);
-				if (dev != null && dev.getId() == devInfo.getId())
-				{
-					devices.set(i, devInfo);
-					hasChanged = true;
-				}
-			}
-		}
-		if (hasChanged)
-		{			
-			remoteDevicesAdapter.clear();
-			remoteDevicesAdapter.notifyDataSetChanged();
-			remoteDevicesAdapter.addAllFromArray(devices);
-			remoteDevicesList.setAdapter(remoteDevicesAdapter);
-			remoteDevicesAdapter.notifyDataSetChanged();
-			Gson gson = new Gson();
-			String devicesJson = gson.toJson(devices);
-			SharedPreferences.Editor ed = preferences.edit();
-        	ed.putString(Consts.Settings_Devices, devicesJson);
-            ed.commit();
-		}
-	}
-
-	@Override
-	public void SendDeviceBroadcastChange() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public RemoteDeviceInfo getDeviceInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void onDeviceChangeFail() {
-		// TODO Auto-generated method stub
-		
-	}
+    }                     
 }

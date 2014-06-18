@@ -16,6 +16,7 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
         <item name="switchStyle">@style/Widget.Holo.Light.CompoundButton.Switch</item>
+        <item name="android:windowSoftInputMode">stateHidden</item>
     </style>
 
 </resources>

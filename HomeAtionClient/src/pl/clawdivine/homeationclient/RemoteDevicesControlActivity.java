@@ -16,7 +16,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 
-public class RemoteDevicesControlActivity extends ActionBarActivity implements ActionBar.TabListener
+public class RemoteDevicesControlActivity extends ActionBarActivity implements ActionBar.TabListener, IDeviceBaseActivity
 {	
 	private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -88,16 +88,13 @@ public class RemoteDevicesControlActivity extends ActionBarActivity implements A
             		switch(deviceType)
             		{
             			case 1:
-            				RemotePowerStripControlFragment rpscFrag = new RemotePowerStripControlFragment();
-            				rpscFrag.setConnectionManager(connectionManager);
-            				rpscFrag.setDeviceInfo(devInfo);            				
+            				RemotePowerStripControlFragment rpscFrag = new RemotePowerStripControlFragment();            				            				           			
             				frag = rpscFrag;            				
             				break;
             		}            		
             		break;
             	case 1:
-            		DeviceSettingsFragment settingsFrag = new DeviceSettingsFragment();
-            		settingsFrag.setDeviceInfo(devInfo);
+            		DeviceSettingsFragment settingsFrag = new DeviceSettingsFragment();            		
             		frag = settingsFrag;
             		break;
         	}
@@ -122,4 +119,27 @@ public class RemoteDevicesControlActivity extends ActionBarActivity implements A
             return null;
         }
     }
+
+	@Override
+	public ConnectionManager getConnectionManager() {
+		return this.connectionManager;
+	}
+
+	@Override
+	public RemoteDeviceInfo getDeviceInfo() {
+		return this.devInfo;
+	}
+
+	@Override
+	public boolean hasToShowNoConnectionDialog() 
+	{
+		if (!connectionManager.isWiFiEnabled())
+        {
+        	NoConnectionDialogFragment noConnectionDialog = new NoConnectionDialogFragment();        	    
+        	noConnectionDialog.show(getSupportFragmentManager(), "NoWiFiConnection");   
+        	return true;
+        }
+		return false;
+		
+	}
 }

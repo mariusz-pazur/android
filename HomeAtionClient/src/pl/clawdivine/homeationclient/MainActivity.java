@@ -9,19 +9,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener 
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, IBaseActivity
 {
-
-    SectionsPagerAdapter mSectionsPagerAdapter;
-    ViewPager mViewPager;
-    
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ViewPager mViewPager;
     private ConnectionManager connectionManager;   
-    private Intent connectionErrorIntent;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,26 +44,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
-        this.connectionManager = new ConnectionManager(this.getBaseContext()); 
-        this.connectionErrorIntent = new Intent(this, ConnectionErrorActivity.class);
+        this.connectionManager = new ConnectionManager(this.getBaseContext());         
     }
     
     @Override
     public void onResume()
     {
     	super.onResume();
-    	ShowNoConnectionDialog();
+    	hasToShowNoConnectionDialog();
     }
     
-    public void ShowNoConnectionDialog()
+    public boolean hasToShowNoConnectionDialog()
     {
     	if (!connectionManager.isWiFiEnabled())
         {
-        	NoConnectionDialogFragment noConnectionDialog = new NoConnectionDialogFragment();
-        	noConnectionDialog.setConnectionErrorIntent(connectionErrorIntent);
-        	noConnectionDialog.setConnectionManager(connectionManager);
-        	noConnectionDialog.show(getSupportFragmentManager(), "NoWiFiConnection");    		
+        	NoConnectionDialogFragment noConnectionDialog = new NoConnectionDialogFragment();        	    
+        	noConnectionDialog.show(getSupportFragmentManager(), "NoWiFiConnection");   
+        	return true;
         }
+    	return false;
     }   
 
     @Override
@@ -96,13 +91,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         	switch (position) 
         	{
             	case 0:
-            		RemoteDevicesFragment rdFrag = new RemoteDevicesFragment();            		
-            		rdFrag.setConnectionManager(connectionManager);
+            		RemoteDevicesFragment rdFrag = new RemoteDevicesFragment();            		            		
             		frag = rdFrag;
             		break;
             	case 1:
-            		MainSettingsFragment settingsFrag = new MainSettingsFragment();
-            		settingsFrag.setConnectionManager(connectionManager);
+            		MainSettingsFragment settingsFrag = new MainSettingsFragment();            		
             		frag = settingsFrag;
             		break;
         	}
@@ -128,6 +121,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
-    
-
+	@Override
+	public ConnectionManager getConnectionManager() {
+		return this.connectionManager;
+	}  
 }

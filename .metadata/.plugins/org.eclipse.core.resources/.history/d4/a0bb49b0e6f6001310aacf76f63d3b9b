@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <RelativeLayout        
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <TextView
+            android:id="@+id/textView_power_strip_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Button
+            android:id="@+id/button_enable_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/textView_power_strip_name"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/button_power_strip_enable_all" />
+
+        <Button
+            android:id="@+id/button_disable_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/textView_power_strip_name"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/button_power_strip_disable_all" />
+
+        <org.jraf.android.backport.switchwidget.Switch
+            android:id="@+id/switch_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/button_enable_all"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="20dp"/>
+        <EditText
+            android:id="@+id/editText1"
+            android:layout_width="100dp"
+            android:layout_height="35dp"
+            android:layout_alignTop="@+id/switch_1"
+            android:layout_alignLeft="@+id/switch_1"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="50dp"
+            android:ems="10"
+            android:inputType="text"
+            android:text="@string/switch_1" >            
+        </EditText>
+
+        <org.jraf.android.backport.switchwidget.Switch
+            android:id="@+id/switch_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/switch_1"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="20dp"/>
+		<EditText
+            android:id="@+id/editText2"
+            android:layout_width="100dp"
+            android:layout_height="35dp"
+            android:layout_alignTop="@+id/switch_2"
+            android:layout_alignLeft="@+id/switch_2"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="50dp"
+            android:ems="10"
+            android:inputType="text"
+            android:text="@string/switch_2" >            
+        </EditText>
+        
+        <org.jraf.android.backport.switchwidget.Switch
+            android:id="@+id/switch_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/switch_2"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="20dp"/>
+		<EditText
+            android:id="@+id/editText3"
+            android:layout_width="100dp"
+            android:layout_height="35dp"
+            android:layout_alignTop="@+id/switch_3"
+            android:layout_alignLeft="@+id/switch_3"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="50dp"
+            android:ems="10"
+            android:inputType="text"
+            android:text="@string/switch_3" >            
+        </EditText>
+        
+        <org.jraf.android.backport.switchwidget.Switch
+            android:id="@+id/switch_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/switch_3"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="50dp" />
+		<EditText
+            android:id="@+id/editText4"
+            android:layout_width="100dp"
+            android:layout_height="35dp"
+            android:layout_alignTop="@+id/switch_4"
+            android:layout_alignLeft="@+id/switch_4"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="50dp"
+            android:ems="10"
+            android:inputType="text"
+            android:text="@string/switch_4" >            
+        </EditText>
+
+		<Button
+		    android:id="@+id/button_save_names"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentBottom="true"
+		    android:layout_centerHorizontal="true"
+		    android:text="@string/button_save_names" />
+
+    </RelativeLayout>
+
+</ScrollView>

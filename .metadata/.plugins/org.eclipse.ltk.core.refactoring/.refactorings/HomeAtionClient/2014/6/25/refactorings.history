@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename method &apos;pl.clawdivine.homeationclient.IBaseActivity.ShowNoConnectionDialog()&apos; to &apos;hasToShowNoConnectionDialog&apos;&#x0D;&#x0A;- Original project: &apos;HomeAtionClient&apos;&#x0D;&#x0A;- Original element: &apos;pl.clawdivine.homeationclient.IBaseActivity.ShowNoConnectionDialog()&apos;&#x0D;&#x0A;- Renamed element: &apos;pl.clawdivine.homeationclient.IBaseActivity.hasToShowNoConnectionDialog()&apos;&#x0D;&#x0A;- Update references to refactored element" delegate="false" deprecate="false" description="Rename method &apos;ShowNoConnectionDialog&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.method" input="/src&lt;pl.clawdivine.homeationclient{IBaseActivity.java[IBaseActivity~ShowNoConnectionDialog" name="hasToShowNoConnectionDialog" references="true" stamp="1403098601904" version="1.0"/>
+</session>

@@ -1,0 +1,5 @@
+package pl.clawdivine.homeationclient.common;
+
+public class PreferencesHelper {
+
+}

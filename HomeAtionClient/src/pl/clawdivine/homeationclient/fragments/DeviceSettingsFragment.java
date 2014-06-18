@@ -1,10 +1,12 @@
 package pl.clawdivine.homeationclient.fragments;
 
+import pl.clawdivine.homeationclient.IDeviceBaseActivity;
 import pl.clawdivine.homeationclient.R;
 import pl.clawdivine.homeationclient.common.Consts;
 import pl.clawdivine.homeationclient.devices.DeviceChangeBroadcastReceiver;
 import pl.clawdivine.homeationclient.devices.OnDeviceChangeListener;
 import pl.clawdivine.homeationclient.devices.RemoteDeviceInfo;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -23,11 +25,7 @@ public class DeviceSettingsFragment extends Fragment implements OnDeviceChangeLi
     private RemoteDeviceInfo deviceInfo;  
     private DeviceChangeBroadcastReceiver receiver;
     private Intent deviceChangeIntent;
-    
-    public void setDeviceInfo(RemoteDeviceInfo deviceInfo)
-    {
-    	this.deviceInfo = deviceInfo;
-    }
+    private IDeviceBaseActivity myActivity;      
     
     @Override
     public void onCreate(Bundle savedInstanceState) 
@@ -38,14 +36,19 @@ public class DeviceSettingsFragment extends Fragment implements OnDeviceChangeLi
     }
     
     @Override
+	public void onAttach(Activity a) {
+	    super.onAttach(a);
+	    myActivity = (IDeviceBaseActivity)a;
+	}
+    
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
     {
         View rootView = inflater.inflate(R.layout.fragment_device_settings, container, false);
         editTextDeviceName = (EditText) rootView.findViewById(R.id.editText_device_name);                      
-        
+        deviceInfo = myActivity.getDeviceInfo();
         editTextDeviceName.setText(deviceInfo.getName());
-        
-        this.saveDeviceButton = (Button)rootView.findViewById(R.id.button_save_device);               
+        saveDeviceButton = (Button)rootView.findViewById(R.id.button_save_device);               
         
         
         saveDeviceButton.setOnClickListener(new View.OnClickListener()

@@ -16,13 +16,16 @@ public class RemoteDeviceInfo implements Parcelable
 	private byte id;
 	private byte type;
 	private byte state[] = new byte[4];
+	private String stateNames[] = new String[] {"State1", "State2", "State3", "State4"}; 
 	
 	public RemoteDeviceInfo(Parcel source) {
 		this.name = source.readString();
     	this.id = source.readByte();
 		this.type = source.readByte();
-		this.state = new byte[4];
-		source.readByteArray(this.state);		
+		this.state = new byte[4];		
+		source.readByteArray(this.state);
+		this.stateNames = new String[4];
+		source.readStringArray(this.stateNames);
 	}
 
 	public RemoteDeviceInfo() {		
@@ -33,6 +36,14 @@ public class RemoteDeviceInfo implements Parcelable
 		return getName() + " (Id: " + getId() + ")";
 	}
 
+	public String[] getStateNames() {		
+		return stateNames;
+	}
+	
+	public void setStateNames(String[] names) {
+		this.stateNames = names;
+	}
+	
 	public String getName() {		
 		return name;
 	}
@@ -96,7 +107,8 @@ public class RemoteDeviceInfo implements Parcelable
 		dest.writeString(this.name);		
 		dest.writeByte(this.id);
 		dest.writeByte(this.type);		
-		dest.writeByteArray(this.state);		
+		dest.writeByteArray(this.state);
+		dest.writeStringArray(this.stateNames);
 	}
 	
 	public static final Parcelable.Creator<RemoteDeviceInfo> CREATOR = new Parcelable.Creator<RemoteDeviceInfo>() {

@@ -27,4 +27,8 @@
     <string name="switch_3">Switch 3</string>
     <string name="switch_4">Switch 4</string>
     <string name="settings_saved">Settings saved!</string>
+    <string name="button_save_names">Save names</string>
+    <string name="message_wrong_ip_address">Wrong IP Address. Settings not saved!</string>
+    <string name="label_timeout">Timeout for auto detect (in seconds):</string>
+    <string name="default_timeout">30</string>
 </resources>

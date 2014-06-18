@@ -1,0 +1,145 @@
+package pl.clawdivine.homeationclient.fragments;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.Header;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.loopj.android.http.TextHttpResponseHandler;
+
+import pl.clawdivine.homeationclient.*;
+import pl.clawdivine.homeationclient.common.Consts;
+import pl.clawdivine.homeationclient.common.PreferencesHelper;
+import pl.clawdivine.homeationclient.connectivity.ConnectionManager;
+import pl.clawdivine.homeationclient.devices.*;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+/**
+ * A placeholder fragment containing a simple view.
+ */
+public class RemoteDevicesFragment extends Fragment {    
+	
+	private ListView remoteDevicesList;
+	private DevicesAdapter remoteDevicesAdapter;
+	private Button buttonRefreshDeviceList;
+	private List<RemoteDeviceInfo> devices = new ArrayList<RemoteDeviceInfo>();	
+	private ConnectionManager connectionManager;
+	private SharedPreferences preferences;	
+	private ProgressBar progress;	
+	private IBaseActivity myActivity;
+	
+	@Override
+    public void onCreate(Bundle savedInstanceState) 
+    {
+        super.onCreate(savedInstanceState);
+        // retain this fragment
+        setRetainInstance(true);
+    }
+	
+	@Override
+	public void onAttach(Activity a) {
+	    super.onAttach(a);
+	    myActivity = (IBaseActivity)a;
+	}
+	
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
+    {    	
+        View rootView = inflater.inflate(R.layout.fragment_remote_devices, container, false);
+        this.remoteDevicesList = (ListView)rootView.findViewById(R.id.listView_remotedevices);
+        this.buttonRefreshDeviceList = (Button)rootView.findViewById(R.id.button_refreshdevices);
+        this.progress = (ProgressBar)rootView.findViewById(R.id.progress);
+        this.progress.setVisibility(View.INVISIBLE);
+        
+        remoteDevicesAdapter = new DevicesAdapter(rootView.getContext(), R.layout.lv_item_remote_device, R.id.label_remotedeviceinfo);
+        remoteDevicesList.setAdapter(remoteDevicesAdapter);
+        
+        preferences = getActivity().getSharedPreferences(Consts.PREFS_NAME, 0);
+        connectionManager = myActivity.getConnectionManager();
+        
+        buttonRefreshDeviceList.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+            	progress.setVisibility(View.VISIBLE);            	
+            	remoteDevicesAdapter.clear();
+            	remoteDevicesAdapter.notifyDataSetChanged();
+            	myActivity.ShowNoConnectionDialog();
+            	
+	            connectionManager.getDevices(
+	            	new TextHttpResponseHandler() {
+	                    @Override
+	                    public void onSuccess(int statusCode, Header[] headers, String responseString) {
+	                    	Gson gson = new Gson();
+	                        JsonParser parser=new JsonParser();
+	                        JsonArray arr=parser.parse(responseString).getAsJsonArray();
+	                        List<RemoteDeviceInfo> remoteDevices = RemoteDeviceInfo.getListFromJsonArray(arr, gson);
+	                        PreferencesHelper.WriteRemoteDevices(preferences, remoteDevices);	                        
+	                        for(RemoteDeviceInfo rd : remoteDevices)
+	                        {
+	                        	for(RemoteDeviceInfo ld : devices)
+		                        {
+		                        	if (rd != null && ld != null && rd.getId() == ld.getId())
+		                        		rd.setName(ld.getName());
+		                        }
+	                        }
+	                        devices.clear();
+	                        devices.addAll(remoteDevices);
+	                        remoteDevicesAdapter.addAllFromArray(remoteDevices);
+	                        remoteDevicesList.setAdapter(remoteDevicesAdapter);
+	            			remoteDevicesAdapter.notifyDataSetChanged();
+	                        progress.setVisibility(View.INVISIBLE);
+	                    }
+	                    @Override
+	                    public void onFailure(String responseBody, Throwable e) 
+	                    {	                    	
+	                		Toast.makeText(getActivity().getApplicationContext(), R.string.message_fill_settings, Toast.LENGTH_LONG).show();
+	                		progress.setVisibility(View.INVISIBLE);
+	                    }
+	                }
+	            );            	
+            }
+        });
+        
+        remoteDevicesList.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+				RemoteDeviceInfo devInfo = remoteDevicesAdapter.getItem(position);
+				if ( devInfo != null && devInfo.getType() == 1)
+				{
+					//RemotePowerStrip
+					Intent intent = new Intent(getActivity(), RemoteDevicesControlActivity.class);
+					intent.putExtra(Consts.REMOTE_DEVICE_PARCELABLE, devInfo);
+					startActivity(intent);
+				}
+				
+			}
+        	
+        });
+        
+        List<RemoteDeviceInfo> remoteDevices = PreferencesHelper.ReadRemoteDevices(preferences);
+        devices.addAll(remoteDevices);
+        remoteDevicesAdapter.addAllFromArray(remoteDevices);                              
+                
+        return rootView;
+    }                     
+}

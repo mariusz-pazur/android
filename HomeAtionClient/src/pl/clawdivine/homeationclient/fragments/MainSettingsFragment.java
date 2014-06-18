@@ -1,8 +1,14 @@
 package pl.clawdivine.homeationclient.fragments;
 
+import org.apache.http.Header;
+
+import com.loopj.android.http.TextHttpResponseHandler;
+
 import pl.clawdivine.homeationclient.*;
+import pl.clawdivine.homeationclient.common.Consts;
 import pl.clawdivine.homeationclient.connectivity.ConnectionManager;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,13 +28,10 @@ public class MainSettingsFragment extends Fragment {
     private Button autoDetectButton;
     private Button saveSettingsButton;    
     private EditText editTextIp;
+    private EditText editTextTimeout;
     private ConnectionManager connectionManager;
     private ProgressBar progress;
-
-    public void setConnectionManager(ConnectionManager connectionManager)
-	{
-		this.connectionManager = connectionManager;
-	}
+    private IBaseActivity myActivity;    
     
     @Override
     public void onCreate(Bundle savedInstanceState) 
@@ -39,14 +42,21 @@ public class MainSettingsFragment extends Fragment {
     }
     
     @Override
+	public void onAttach(Activity a) {
+	    super.onAttach(a);
+	    myActivity = (IBaseActivity)a;
+	}
+    
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) 
     {
         View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
-        editTextIp = (EditText) rootView.findViewById(R.id.editText_ipaddress);                      
+        editTextIp = (EditText) rootView.findViewById(R.id.editText_ipaddress);
+        editTextTimeout = (EditText) rootView.findViewById(R.id.editText_timeout);        
         progress = (ProgressBar) rootView.findViewById(R.id.progress_main_settings);
         progress.setVisibility(View.INVISIBLE);
-        editTextIp.setText(connectionManager.getHomeAtionIpAddress());
-        
+        connectionManager = myActivity.getConnectionManager();
+        editTextIp.setText(connectionManager.getHomeAtionIpAddress());        
         this.autoDetectButton = (Button)rootView.findViewById(R.id.button_autodetect);
         this.saveSettingsButton = (Button)rootView.findViewById(R.id.button_savesettings);               
         
@@ -55,7 +65,8 @@ public class MainSettingsFragment extends Fragment {
             @SuppressLint("DefaultLocale")
 			public void onClick(View v)
             {            	
-            	new DetectHomeAtionAddressTask().execute(connectionManager);            	            	                             
+            	if (!myActivity.hasToShowNoConnectionDialog())
+            		new DetectHomeAtionAddressTask().execute(connectionManager);            	            	                             
             }
         });
         
@@ -63,13 +74,38 @@ public class MainSettingsFragment extends Fragment {
         {
             public void onClick(View v)
             {
-            	connectionManager.saveHomeAtionIpAddress(editTextIp.getText().toString());
-            	Toast.makeText(getActivity().getApplicationContext(), R.string.settings_saved, Toast.LENGTH_SHORT).show();
+            	if (!myActivity.hasToShowNoConnectionDialog())
+            	{
+            		final String newIp = editTextIp.getText().toString();
+            		progress.setVisibility(View.VISIBLE);
+            		connectionManager.getEchoResponse(newIp, new TextHttpResponseHandler() 
+            		{
+            			@Override
+            			public void onSuccess(int statusCode, Header[] headers, String responseString)
+            			{            			
+            				if (responseString.equalsIgnoreCase(Consts.HOME_ATION_ECHO_RESPONSE))
+            				{
+            					connectionManager.saveHomeAtionIpAddress(newIp);            	
+            					Toast.makeText(getActivity().getApplicationContext(), R.string.settings_saved, Toast.LENGTH_SHORT).show();
+            				}
+            				else
+            					Toast.makeText(getActivity().getApplicationContext(), R.string.message_wrong_ip_address, Toast.LENGTH_LONG).show();
+            				progress.setVisibility(View.INVISIBLE);
+            			} 
+            			@Override
+            			public void onFailure(int statusCode, Header[] headers, String responseString, Throwable exception)
+            			{
+            				Toast.makeText(getActivity().getApplicationContext(), R.string.message_wrong_ip_address, Toast.LENGTH_LONG).show();
+            				progress.setVisibility(View.INVISIBLE);
+            			}
+            		});
+            	}
+            	
             }
         });
         
         return rootView;
-    } 
+    }     
     
     private class DetectHomeAtionAddressTask extends AsyncTask<ConnectionManager, Void, String> 
     {
@@ -90,7 +126,16 @@ public class MainSettingsFragment extends Fragment {
 		@Override
 		protected String doInBackground(ConnectionManager... params) 
 		{
-			return params[0].detectHomeAtionMainIP();
+			String timeoutStr = editTextTimeout.getText().toString();
+			int timeoutValue;
+			try {
+				timeoutValue = Integer.parseInt(timeoutStr);
+			}
+			catch(NumberFormatException e)
+			{
+				timeoutValue = Integer.parseInt(getString(R.string.default_timeout));
+			}
+			return params[0].detectHomeAtionMainIP(timeoutValue);
 		}
     }
 }

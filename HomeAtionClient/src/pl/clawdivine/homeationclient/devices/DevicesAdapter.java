@@ -48,6 +48,9 @@ public class DevicesAdapter extends ArrayAdapter<RemoteDeviceInfo>
     public void addAllFromArray(Collection<RemoteDeviceInfo> devices)
     {
     	for(RemoteDeviceInfo device : devices)
-    		this.add(device);
+    	{
+    		if (device != null)
+    			this.add(device);
+    	}
     }
 }

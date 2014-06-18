@@ -7,6 +7,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 import pl.clawdivine.homeationclient.common.Consts;
+import pl.clawdivine.homeationclient.common.PreferencesHelper;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.DhcpInfo;
@@ -26,7 +27,7 @@ public class ConnectionManager
     {
     	wifi= (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
     	preferences = context.getSharedPreferences(Consts.PREFS_NAME, 0);
-    	homeAtionIpAddress = preferences.getString(Consts.Settings_IP, "");
+    	homeAtionIpAddress = PreferencesHelper.ReadHomeAtionIpAddress(preferences);
     }
     
     public String getHomeAtionIpAddress()
@@ -37,13 +38,10 @@ public class ConnectionManager
     public void saveHomeAtionIpAddress(String ipAddress)
     {    	
     	this.homeAtionIpAddress = ipAddress;
-        SharedPreferences.Editor editor = preferences.edit();                
-        editor.putString(Consts.Settings_IP, ipAddress);
-        // Commit the edits!
-        editor.commit();
+        PreferencesHelper.WriteHomeAtionIpAddress(preferences, ipAddress);        
     }
     
-    public String detectHomeAtionMainIP()
+    public String detectHomeAtionMainIP(int timeoutInSeconds)
     {
     	homeAtionIpAddress = "";
     	calls = 0;
@@ -120,7 +118,7 @@ public class ConnectionManager
             }
         }
         long startWaiting = System.currentTimeMillis();
-        while(calls != responses && homeAtionIpAddress == "" && (System.currentTimeMillis() - startWaiting) < 30000 ) {}
+        while(calls != responses && homeAtionIpAddress == "" && (System.currentTimeMillis() - startWaiting) < timeoutInSeconds * 1000 ) {}
         
         return homeAtionIpAddress;
     }
@@ -128,6 +126,11 @@ public class ConnectionManager
     public void getDevices(AsyncHttpResponseHandler handler)
     {
     	HomeAtionHttpClient.getDevices(homeAtionIpAddress,handler);
+    }
+    
+    public void getEchoResponse(String ipAddress, AsyncHttpResponseHandler handler)
+    {
+    	HomeAtionHttpClient.echo(ipAddress,handler);
     }
     
     public void sendCommandEnable(byte id, byte type, byte switchNr, AsyncHttpResponseHandler responseHandler)

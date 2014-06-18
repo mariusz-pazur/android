@@ -1,0 +1,10 @@
+package pl.clawdivine.homeationclient;
+
+import pl.clawdivine.homeationclient.connectivity.ConnectionManager;
+
+public interface IBaseActivity 
+{
+	public ConnectionManager getConnectionManager();
+	
+	public boolean hasToShowNoConnectionDialog();
+}

@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-public class ConnectionErrorActivity extends Activity {
+public class ConnectionErrorActivity extends Activity implements IBaseActivity {
 
 	private Button buttonTurnWiFiOn;
 	private ConnectionManager connectionManager;
@@ -30,5 +30,16 @@ public class ConnectionErrorActivity extends Activity {
             	startActivity(mainActivityIntent);
             }
         });
+	}
+
+	@Override
+	public ConnectionManager getConnectionManager() 
+	{
+		return connectionManager;
+	}
+
+	@Override
+	public boolean hasToShowNoConnectionDialog() {
+		return true;
 	}
 }
