@@ -1,5 +1,11 @@
 package pl.clawdivine.homeationclient.connectivity;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -12,6 +18,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
+import android.net.wifi.WifiManager.MulticastLock;
 
 import org.apache.http.Header;
 
@@ -39,6 +46,51 @@ public class ConnectionManager
     {    	
     	this.homeAtionIpAddress = ipAddress;
         PreferencesHelper.WriteHomeAtionIpAddress(preferences, ipAddress);        
+    }
+    
+    public String detectHomeAtionMainIP2(int timeout)
+    {
+    	homeAtionIpAddress = "";
+    	DatagramSocket socket = null;
+    	DatagramPacket packet;
+    	DatagramPacket receivedPacket = null;
+    	InetAddress broadcast = getBroadcastAddress();
+    	byte[] buf = new byte[1024];
+    	if (broadcast != null)
+    	{
+    		//MulticastLock lock = wifi.createMulticastLock("pl.clawdivine.homeationclient");
+    		//lock.acquire();
+			try {
+				socket = new DatagramSocket(Consts.UDP_BROADCAST_PORT);
+				socket.setBroadcast(true);
+				byte[] data = Consts.HOME_ATION_ECHO_RESPONSE.getBytes();
+				packet = new DatagramPacket(data, data.length, broadcast, Consts.UDP_BROADCAST_PORT);
+				socket.send(packet);
+				receivedPacket = new DatagramPacket(buf, buf.length);
+				socket.setSoTimeout(timeout*1000);
+		    	socket.receive(receivedPacket);		    	
+			} catch (SocketException e1) {
+				homeAtionIpAddress = "";
+				
+			} catch (IOException e) {
+				homeAtionIpAddress = "";
+			}
+	    	finally {
+	    		if (socket != null && !socket.isClosed())
+	    			socket.close();
+	    	}
+			//lock.release();
+			if (receivedPacket != null)
+			{
+				String response = new String(receivedPacket.getData());
+				if (response.equalsIgnoreCase(Consts.HOME_ATION_ECHO_RESPONSE))
+				{
+					String hostnameAndAddress = receivedPacket.getAddress().toString();
+					homeAtionIpAddress = hostnameAndAddress.substring(hostnameAndAddress.indexOf('/')+1); 
+				}
+			}
+    	}
+    	return homeAtionIpAddress;
     }
     
     public String detectHomeAtionMainIP(int timeoutInSeconds)
@@ -121,6 +173,23 @@ public class ConnectionManager
         while(calls != responses && homeAtionIpAddress == "" && (System.currentTimeMillis() - startWaiting) < timeoutInSeconds * 1000 ) {}
         
         return homeAtionIpAddress;
+    }
+    
+    public InetAddress getBroadcastAddress() {
+        DhcpInfo dhcp = wifi.getDhcpInfo();
+        // handle null somehow
+
+        int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
+        byte[] quads = new byte[4];
+        for (int k = 0; k < 4; k++)
+          quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
+        try {
+			return InetAddress.getByAddress(quads);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
     }
     
     public void getDevices(AsyncHttpResponseHandler handler)

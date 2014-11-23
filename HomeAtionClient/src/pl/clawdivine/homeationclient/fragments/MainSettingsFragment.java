@@ -135,7 +135,7 @@ public class MainSettingsFragment extends Fragment {
 			{
 				timeoutValue = Integer.parseInt(getString(R.string.default_timeout));
 			}
-			return params[0].detectHomeAtionMainIP(timeoutValue);
+			return params[0].detectHomeAtionMainIP2(timeoutValue);
 		}
     }
 }
