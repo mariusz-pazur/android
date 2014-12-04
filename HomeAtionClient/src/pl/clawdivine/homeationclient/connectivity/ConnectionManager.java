@@ -48,48 +48,60 @@ public class ConnectionManager
         PreferencesHelper.WriteHomeAtionIpAddress(preferences, ipAddress);        
     }
     
-    public String detectHomeAtionMainIP2(int timeout)
+    public void sendHomeAtionBroadcastRequest()
+    {
+    	DatagramSocket socket = null;
+    	InetAddress broadcast = getBroadcastAddress();
+    	try {
+    		socket = new DatagramSocket(Consts.UDP_REQUEST_BROADCAST_SOURCE_PORT);
+    		socket.setBroadcast(true);
+			byte[] data = Consts.HOME_ATION_ECHO_REQUEST.getBytes();
+			DatagramPacket packet = new DatagramPacket(data, data.length, broadcast, Consts.UDP_REQUEST_BROADCAST_PORT);
+			socket.send(packet);	
+    	} catch (SocketException e1) {			
+			
+		} catch (IOException e) {			
+		}
+    	finally {
+    		if (socket != null && !socket.isClosed())
+    			socket.close();
+    	}
+    }
+    
+    public String receiveHomeAtionMainBroadcastResponse(int timeout)
     {
     	homeAtionIpAddress = "";
-    	DatagramSocket socket = null;
-    	DatagramPacket packet;
-    	DatagramPacket receivedPacket = null;
-    	InetAddress broadcast = getBroadcastAddress();
+    	DatagramSocket socket = null;    	
+    	DatagramPacket receivedPacket = null;    	
     	byte[] buf = new byte[1024];
-    	if (broadcast != null)
-    	{
-    		//MulticastLock lock = wifi.createMulticastLock("pl.clawdivine.homeationclient");
-    		//lock.acquire();
-			try {
-				socket = new DatagramSocket(Consts.UDP_BROADCAST_PORT);
-				socket.setBroadcast(true);
-				byte[] data = Consts.HOME_ATION_ECHO_RESPONSE.getBytes();
-				packet = new DatagramPacket(data, data.length, broadcast, Consts.UDP_BROADCAST_PORT);
-				socket.send(packet);
-				receivedPacket = new DatagramPacket(buf, buf.length);
-				socket.setSoTimeout(timeout*1000);
-		    	socket.receive(receivedPacket);		    	
-			} catch (SocketException e1) {
-				homeAtionIpAddress = "";
-				
-			} catch (IOException e) {
-				homeAtionIpAddress = "";
-			}
-	    	finally {
-	    		if (socket != null && !socket.isClosed())
-	    			socket.close();
-	    	}
-			//lock.release();
-			if (receivedPacket != null)
-			{
-				String response = new String(receivedPacket.getData());
-				if (response.equalsIgnoreCase(Consts.HOME_ATION_ECHO_RESPONSE))
-				{
-					String hostnameAndAddress = receivedPacket.getAddress().toString();
-					homeAtionIpAddress = hostnameAndAddress.substring(hostnameAndAddress.indexOf('/')+1); 
-				}
-			}
+    	  		
+    	try {
+    		receivedPacket = new DatagramPacket(buf, buf.length);
+    		socket = new DatagramSocket(Consts.UDP_RESPONSE_BROADCAST_PORT);
+    		socket.setSoTimeout(timeout*1000);
+    		socket.receive(receivedPacket);		    	
+    	} catch (SocketException e1) {
+    		homeAtionIpAddress = "";
+
+    	} catch (IOException e) {
+    		homeAtionIpAddress = "";
     	}
+    	finally {
+    		if (socket != null && !socket.isClosed())
+    			socket.close();
+    	}
+    	if (receivedPacket != null)
+    	{
+    		String response = new String(receivedPacket.getData());	
+    		response = response.substring(0, receivedPacket.getLength() -1);
+    		int result = response.compareToIgnoreCase(Consts.HOME_ATION_ECHO_RESPONSE);				
+    		if (result == 0)
+    		{
+    			String hostnameAndAddress = receivedPacket.getAddress().toString();
+    			homeAtionIpAddress = hostnameAndAddress.substring(hostnameAndAddress.indexOf('/')+1); 
+    		}
+    	}
+    	
     	return homeAtionIpAddress;
     }
     
@@ -177,17 +189,13 @@ public class ConnectionManager
     
     public InetAddress getBroadcastAddress() {
         DhcpInfo dhcp = wifi.getDhcpInfo();
-        // handle null somehow
-
         int broadcast = (dhcp.ipAddress & dhcp.netmask) | ~dhcp.netmask;
         byte[] quads = new byte[4];
         for (int k = 0; k < 4; k++)
           quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
         try {
 			return InetAddress.getByAddress(quads);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (UnknownHostException e) {			
 			return null;
 		}
     }

@@ -66,7 +66,10 @@ public class MainSettingsFragment extends Fragment {
 			public void onClick(View v)
             {            	
             	if (!myActivity.hasToShowNoConnectionDialog())
-            		new DetectHomeAtionAddressTask().execute(connectionManager);            	            	                             
+            	{
+            		new DetectHomeAtionAddressTask().execute(connectionManager);            		
+            		connectionManager.sendHomeAtionBroadcastRequest();
+            	}
             }
         });
         
@@ -135,7 +138,7 @@ public class MainSettingsFragment extends Fragment {
 			{
 				timeoutValue = Integer.parseInt(getString(R.string.default_timeout));
 			}
-			return params[0].detectHomeAtionMainIP2(timeoutValue);
+			return params[0].receiveHomeAtionMainBroadcastResponse(timeoutValue);
 		}
     }
 }

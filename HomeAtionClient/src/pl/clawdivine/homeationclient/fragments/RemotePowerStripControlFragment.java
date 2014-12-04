@@ -121,7 +121,7 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
             public void onClick(View v)
             {
             	if (!myActivity.hasToShowNoConnectionDialog())
-            		connectionManager.sendCommandEnableAll(deviceInfo.getId(), deviceInfo.getType(), responseHandler);
+            		connectionManager.sendCommandDisableAll(deviceInfo.getId(), deviceInfo.getType(), responseHandler);
             }
         });
         
