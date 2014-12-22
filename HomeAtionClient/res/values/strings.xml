@@ -31,4 +31,5 @@
     <string name="message_wrong_ip_address">Wrong IP Address. Settings not saved!</string>
     <string name="label_timeout">Timeout for auto detect (in seconds):</string>
     <string name="default_timeout">30</string>
+    <string name="message_cant_send_broadcast">Error sending broadcast message!</string>
 </resources>

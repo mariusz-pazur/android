@@ -18,7 +18,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
-import android.net.wifi.WifiManager.MulticastLock;
 
 import org.apache.http.Header;
 
@@ -48,8 +47,9 @@ public class ConnectionManager
         PreferencesHelper.WriteHomeAtionIpAddress(preferences, ipAddress);        
     }
     
-    public void sendHomeAtionBroadcastRequest()
+    public boolean sendHomeAtionBroadcastRequest()
     {
+    	boolean result = false;
     	DatagramSocket socket = null;
     	InetAddress broadcast = getBroadcastAddress();
     	try {
@@ -57,7 +57,8 @@ public class ConnectionManager
     		socket.setBroadcast(true);
 			byte[] data = Consts.HOME_ATION_ECHO_REQUEST.getBytes();
 			DatagramPacket packet = new DatagramPacket(data, data.length, broadcast, Consts.UDP_REQUEST_BROADCAST_PORT);
-			socket.send(packet);	
+			socket.send(packet);
+			result = true;
     	} catch (SocketException e1) {			
 			
 		} catch (IOException e) {			
@@ -66,6 +67,8 @@ public class ConnectionManager
     		if (socket != null && !socket.isClosed())
     			socket.close();
     	}
+    	
+    	return result;
     }
     
     public String receiveHomeAtionMainBroadcastResponse(int timeout)

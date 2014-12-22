@@ -1,5 +1,12 @@
 package pl.clawdivine.homeationclient.fragments;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.http.Header;
 
 import com.loopj.android.http.TextHttpResponseHandler;
@@ -67,8 +74,14 @@ public class MainSettingsFragment extends Fragment {
             {            	
             	if (!myActivity.hasToShowNoConnectionDialog())
             	{
-            		new DetectHomeAtionAddressTask().execute(connectionManager);            		
-            		connectionManager.sendHomeAtionBroadcastRequest();
+            		//RejectedExecutionHandler implementation
+            		RejectedExecutionHandlerImpl rejectionHandler = new RejectedExecutionHandlerImpl();
+            		//Get the ThreadFactory implementation to use
+            		ThreadFactory threadFactory = Executors.defaultThreadFactory();
+            		//creating the ThreadPoolExecutor
+            		ThreadPoolExecutor executorPool = new ThreadPoolExecutor(2, 4, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(2), threadFactory, rejectionHandler);            		
+            		new DetectHomeAtionAddressTask().executeOnExecutor(executorPool, connectionManager);             		           	
+            		new SendBroadcastRequestTask().executeOnExecutor(executorPool, connectionManager);
             	}
             }
         });
@@ -108,7 +121,16 @@ public class MainSettingsFragment extends Fragment {
         });
         
         return rootView;
-    }     
+    }   
+    
+    public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
+
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) 
+        {            
+        }
+
+    }
     
     private class DetectHomeAtionAddressTask extends AsyncTask<ConnectionManager, Void, String> 
     {
@@ -139,6 +161,26 @@ public class MainSettingsFragment extends Fragment {
 				timeoutValue = Integer.parseInt(getString(R.string.default_timeout));
 			}
 			return params[0].receiveHomeAtionMainBroadcastResponse(timeoutValue);
+		}
+    }
+    
+    private class SendBroadcastRequestTask extends AsyncTask<ConnectionManager, Void, Boolean> 
+    {
+    	protected void onPreExecute()
+    	{
+    		progress.setVisibility(View.VISIBLE);
+    	}            	    
+
+        protected void onPostExecute(Boolean result) 
+        {
+        	if (!result)
+        		editTextIp.setText(R.string.message_cant_send_broadcast);        	
+        }
+
+		@Override
+		protected Boolean doInBackground(ConnectionManager... params) 
+		{			
+			return params[0].sendHomeAtionBroadcastRequest();
 		}
     }
 }
