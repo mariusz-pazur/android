@@ -134,6 +134,14 @@
 		    android:layout_below="@+id/switch_4"
 		    android:layout_marginTop="20dp" />
 
+		<ProgressBar
+        android:id="@+id/progress_remote_strip_control"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"        
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        style="@android:style/Widget.ProgressBar.Inverse"
+         />
     </RelativeLayout>
 
 </ScrollView>

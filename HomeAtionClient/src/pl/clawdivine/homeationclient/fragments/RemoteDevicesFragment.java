@@ -89,7 +89,7 @@ public class RemoteDevicesFragment extends Fragment {
         {
             public void onClick(View v)
             {
-            	progress.setVisibility(View.VISIBLE);            	
+            	changeInputsState(false);          	
             	remoteDevicesAdapter.clear();
             	remoteDevicesAdapter.notifyDataSetChanged();
             	if (!myActivity.hasToShowNoConnectionDialog())
@@ -119,13 +119,13 @@ public class RemoteDevicesFragment extends Fragment {
             						remoteDevicesAdapter.addAllFromArray(remoteDevices);
             						remoteDevicesList.setAdapter(remoteDevicesAdapter);
             						remoteDevicesAdapter.notifyDataSetChanged();
-            						progress.setVisibility(View.INVISIBLE);
+            						changeInputsState(true);
             					}
             					@Override
             					public void onFailure(String responseBody, Throwable e) 
             					{	                    	
             						Toast.makeText(getActivity().getApplicationContext(), R.string.message_fill_settings, Toast.LENGTH_LONG).show();
-            						progress.setVisibility(View.INVISIBLE);
+            						changeInputsState(true);
             					}
             				}
             		);
@@ -151,5 +151,14 @@ public class RemoteDevicesFragment extends Fragment {
         });
                                                             
         return rootView;
-    }                     
+    }  
+    
+    private void changeInputsState(boolean isEnabled)
+    {
+    	if (isEnabled)
+    		progress.setVisibility(View.INVISIBLE);
+    	else
+    		progress.setVisibility(View.VISIBLE);
+    	this.buttonRefreshDeviceList.setEnabled(isEnabled);    	    
+    }
 }

@@ -38,7 +38,7 @@ public class MainSettingsFragment extends Fragment {
     private EditText editTextTimeout;
     private ConnectionManager connectionManager;
     private ProgressBar progress;
-    private IBaseActivity myActivity;    
+    private IBaseActivity myActivity;      
     
     @Override
     public void onCreate(Bundle savedInstanceState) 
@@ -65,7 +65,7 @@ public class MainSettingsFragment extends Fragment {
         connectionManager = myActivity.getConnectionManager();
         editTextIp.setText(connectionManager.getHomeAtionIpAddress());        
         this.autoDetectButton = (Button)rootView.findViewById(R.id.button_autodetect);
-        this.saveSettingsButton = (Button)rootView.findViewById(R.id.button_savesettings);               
+        this.saveSettingsButton = (Button)rootView.findViewById(R.id.button_savesettings);        
         
         autoDetectButton.setOnClickListener(new View.OnClickListener()
         {
@@ -92,8 +92,8 @@ public class MainSettingsFragment extends Fragment {
             {
             	if (!myActivity.hasToShowNoConnectionDialog())
             	{
-            		final String newIp = editTextIp.getText().toString();
-            		progress.setVisibility(View.VISIBLE);
+            		final String newIp = editTextIp.getText().toString();            		
+            		changeInputsState(false);
             		connectionManager.getEchoResponse(newIp, new TextHttpResponseHandler() 
             		{
             			@Override
@@ -106,13 +106,13 @@ public class MainSettingsFragment extends Fragment {
             				}
             				else
             					Toast.makeText(getActivity().getApplicationContext(), R.string.message_wrong_ip_address, Toast.LENGTH_LONG).show();
-            				progress.setVisibility(View.INVISIBLE);
+            				changeInputsState(true);          				
             			} 
             			@Override
             			public void onFailure(int statusCode, Header[] headers, String responseString, Throwable exception)
             			{
             				Toast.makeText(getActivity().getApplicationContext(), R.string.message_wrong_ip_address, Toast.LENGTH_LONG).show();
-            				progress.setVisibility(View.INVISIBLE);
+            				changeInputsState(true);            				
             			}
             		});
             	}
@@ -122,6 +122,18 @@ public class MainSettingsFragment extends Fragment {
         
         return rootView;
     }   
+    
+    private void changeInputsState(boolean isEnabled)
+    {
+    	if (isEnabled)
+    		progress.setVisibility(View.INVISIBLE);
+    	else
+    		progress.setVisibility(View.VISIBLE);
+    	this.editTextIp.setEnabled(isEnabled);
+    	this.editTextTimeout.setEnabled(isEnabled);
+    	this.autoDetectButton.setEnabled(isEnabled);
+    	this.saveSettingsButton.setEnabled(isEnabled);    	
+    }
     
     public class RejectedExecutionHandlerImpl implements RejectedExecutionHandler {
 
@@ -136,7 +148,7 @@ public class MainSettingsFragment extends Fragment {
     {
     	protected void onPreExecute()
     	{
-    		progress.setVisibility(View.VISIBLE);
+    		changeInputsState(false);
     	}            	    
 
         protected void onPostExecute(String resultIP) 
@@ -145,7 +157,7 @@ public class MainSettingsFragment extends Fragment {
         		editTextIp.setText(resultIP);
         	else
         		editTextIp.setText(R.string.label_no_home_ation);
-        	progress.setVisibility(View.INVISIBLE);
+        	changeInputsState(true);
         }
 
 		@Override
@@ -168,7 +180,7 @@ public class MainSettingsFragment extends Fragment {
     {
     	protected void onPreExecute()
     	{
-    		progress.setVisibility(View.VISIBLE);
+    		changeInputsState(false);    		
     	}            	    
 
         protected void onPostExecute(Boolean result) 

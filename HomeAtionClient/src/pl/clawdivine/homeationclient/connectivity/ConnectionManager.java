@@ -233,6 +233,11 @@ public class ConnectionManager
     	HomeAtionHttpClient.sendCommandDisableAll(homeAtionIpAddress, id, type, responseHandler);  
     }
     
+    public void sendCommandReadAll(byte id, byte type, AsyncHttpResponseHandler responseHandler)
+    {
+    	HomeAtionHttpClient.sendCommandReadAll(homeAtionIpAddress, id, type, responseHandler);  
+    }
+    
     public boolean isWiFiEnabled()
     {
     	return wifi.isWifiEnabled();

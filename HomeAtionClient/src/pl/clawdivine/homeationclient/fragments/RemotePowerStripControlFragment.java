@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
@@ -38,6 +39,7 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
     private TextView textViewDeviceName;
     private Switch[] switches = new Switch[4];  
     private EditText[] switchNames = new EditText[4];
+    private ProgressBar progress;
     private RemoteDeviceInfo deviceInfo; 
     private DeviceChangeBroadcastReceiver receiver;
     private Intent deviceChangeIntent;
@@ -75,11 +77,15 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
         this.switches[3] = (Switch)rootView.findViewById(R.id.switch_4);
         this.switchNames[3] = (EditText)rootView.findViewById(R.id.editText4);
         this.buttonSaveNames = (Button)rootView.findViewById(R.id.button_save_names);
+        this.progress = (ProgressBar)rootView.findViewById(R.id.progress_remote_strip_control);
+        this.progress.setVisibility(View.INVISIBLE);
         this.responseHandler = new RemotePowerStripReponseHandler(this);        
         
         this.deviceChangeIntent = new Intent(Consts.BROADCAST_DEVICE_CHANGE_INFO);                 
         this.connectionManager = myActivity.getConnectionManager(); 
         this.deviceInfo = myActivity.getDeviceInfo();
+        changeInputsState(false);
+        connectionManager.sendCommandReadAll(deviceInfo.getId(), deviceInfo.getType(), responseHandler);
         preferences = getActivity().getSharedPreferences(Consts.PREFS_NAME, 0);
         
         for (int i = 0; i < switches.length; i++)
@@ -96,7 +102,8 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
 					{
 						if (!myActivity.hasToShowNoConnectionDialog())
 						{
-							byte newState = (byte) (state ? 0 : 1);					
+							byte newState = (byte) (state ? 0 : 1);							
+							changeInputsState(false);
 							if (newState == 0)//enable
 								connectionManager.sendCommandEnable(deviceInfo.getId(), deviceInfo.getType(), (byte)index, responseHandler);						
 							else
@@ -112,7 +119,10 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
             public void onClick(View v)
             {
             	if (!myActivity.hasToShowNoConnectionDialog())
-            		connectionManager.sendCommandEnableAll(deviceInfo.getId(), deviceInfo.getType(), responseHandler);            	
+            	{
+            		changeInputsState(false);
+            		connectionManager.sendCommandEnableAll(deviceInfo.getId(), deviceInfo.getType(), responseHandler);
+            	}
             }
         });
         
@@ -121,7 +131,10 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
             public void onClick(View v)
             {
             	if (!myActivity.hasToShowNoConnectionDialog())
+            	{
+            		changeInputsState(false);
             		connectionManager.sendCommandDisableAll(deviceInfo.getId(), deviceInfo.getType(), responseHandler);
+            	}
             }
         });
         
@@ -168,6 +181,21 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
         }
     }
     
+    private void changeInputsState(boolean isEnabled)
+    {
+    	if (isEnabled)
+    		progress.setVisibility(View.INVISIBLE);
+    	else
+    		progress.setVisibility(View.VISIBLE);
+    	this.buttonDisableAll.setEnabled(isEnabled);
+    	this.buttonEnableAll.setEnabled(isEnabled);
+    	this.buttonSaveNames.setEnabled(isEnabled);
+    	for (int i = 0; i < switches.length; i++)
+        {        	
+        	this.switches[i].setEnabled(isEnabled);        
+        }
+    }
+    
     public void SendDeviceBroadcastChange()
     {    	
     	deviceChangeIntent.putExtra(Consts.REMOTE_DEVICE_PARCELABLE, deviceInfo);
@@ -181,6 +209,7 @@ public class RemotePowerStripControlFragment extends Fragment implements OnDevic
 		this.deviceInfo = devInfo;
 		this.textViewDeviceName.setText(deviceInfo.getNameWithId());
 		UpdateSwitchState();
+		changeInputsState(true);
 	}
 
 	@Override

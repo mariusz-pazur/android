@@ -50,6 +50,12 @@ public static void sendCommandDisableAll(String ipAddress, byte id, byte type, A
 	  client.get(getMethodUrl(ipAddress, disableAllMethod), null, responseHandler);
   }
   
+  public static void sendCommandReadAll(String ipAddress, byte id, byte type, AsyncHttpResponseHandler responseHandler)
+  {
+	  String readAllMethod = String.format(COMMAND_METHOD, id, type, 3, 0);
+	  client.get(getMethodUrl(ipAddress, readAllMethod), null, responseHandler);
+  }
+  
   private static String getMethodUrl(String ipAddress, String methodUrl) 
   {
       return HTTP_URL + ipAddress + methodUrl;
